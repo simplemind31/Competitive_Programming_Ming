@@ -1,0 +1,14 @@
+ls=list all the files and directories in the folder
+cd..=go to a parent folder
+cd.=go to current folder
+pwd=show the place of the current directory
+cd filename=go to the folder called filename
+mkdir filename=make a directory called filename
+mv <source> <destination>=move the source to destination
+cd=exit to the first folder
+cp <source> <destination>=copy the things of source to a new file called destionation
+cp -r <source> <destionation>=copy all the directory to a new one called destination
+rm <file>=remove a file called file, at the end you have to confirm if you wish ti delete it
+rm -f <file>=the same as above but no cofirmation needed
+rm -r <directory>=same as rm <file> but now with directory
+rm -rf <directory>= same as rm -f <file> but with directory  

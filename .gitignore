@@ -1,0 +1,14 @@
+*.exe
+*.txt
+*.bin
+*.docx
+*.xlsx
+*.pptx
+*.zip
+*.rar
+*.doc
+*.prob
+*.h
+grader.*
+*.pas
+*.c
