@@ -162,4 +162,32 @@ x=np.random.normal(loc=1, scale=2, size=(2, 3))
 x=np.random.binomial(n=10, p=0.5, size=10)
 x=np.random.poisson(lam=2, size=10)
 x=np.random.uniform(size=(2, 3))
-print(x)
+x=np.random.logistic(loc=1, scale=2, size=(2, 3))
+"""
+data = {
+  "normal": random.normal(scale=2, size=1000),
+  "logistic": random.logistic(size=1000)
+}
+sns.displot(data, kind="kde")
+"""
+x = [1, 2, 3, 4]
+y = [4, 5, 6, 7, 8]
+z = []
+
+for i, j in zip(x, y):
+  z.append(i + j)
+x = [1, 2, 3, 4]
+y = [4, 5, 6, 7]
+z = np.add(x, y)
+
+"""
+function - the name of the function.
+inputs - the number of input arguments (arrays).
+outputs - the number of output arrays.
+"""
+def mytime(x, y):
+  return x*y
+mytime = np.frompyfunc(mytime, 2, 1)
+
+print(mytime([1, 2, 3, 4], [5, 6, 7, 8]))
+print(type(mytime))
