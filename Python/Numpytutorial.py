@@ -188,6 +188,28 @@ outputs - the number of output arrays.
 def mytime(x, y):
   return x*y
 mytime = np.frompyfunc(mytime, 2, 1)
-
+"""
 print(mytime([1, 2, 3, 4], [5, 6, 7, 8]))
 print(type(mytime))
+"""
+arr1 = np.array([10, 20, 30, 40, 50, 60])
+arr2 = np.array([20, 21, 22, 23, 24, 25])
+"""
+newarr = np.add(arr1, arr2)
+print(newarr)
+newarr = np.subtract(arr1, arr2)
+print(newarr)
+newarr = np.multiply(arr1, arr2)
+print(newarr)
+newarr = np.divide(arr1, arr2)
+print(newarr)
+newarr = np.power(arr1, arr2)
+print(newarr)
+newarr = np.mod(arr1, arr2)
+print(newarr)
+"""
+"""
+newarr = np.divmod(arr1, arr2)
+print(newarr)
+newarr = np.absolute(arr)
+"""
