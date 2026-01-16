@@ -23,37 +23,50 @@ int main(){
         }
     }
     for(ll i=0;i<n;i++){
-        if(can[i]>0)continue;
         for(ll j=i;j>=0;j--){
             //need nece[i][j] pero solo can[j]
             if(can[j]>=nece[i][j])continue;
             //cambiar nece[i][j]-can[j];
             ll need=nece[i][j]-can[j];
-            //if(i==4)cout << nece[i][j] << ' ';
-            //if(i==4)cout << j << ' ';
+            for(ll k=j;k>=0;k--)nece[i][k]+=need*nece[j][k];
             nece[i][j]-=need;
-            for(ll k=j;k>=0;k--){
-                nece[i][k]+=need*nece[j][k];
-                //if(i==2 && k==0)cout << nece[i][k] << ' ';
-                if(nece[i][k]>=1e9)nece[i][k]=1e9;
-                //if(i==4 && k==0)cout << nece[i][j] << ' ';
-            }
-            //if(i==2 && j==0)cout << nece[i][j] << ' ';
-            //if(i==2 && j==0)cout << nece[i][j] << ' ';
         }
     }
-    cout << endl;
-    for(int i=0;i<n;i++){
-        for(int j=0;j<n;j++){
-            cout << nece[i][j] << ' ';
-        }
-        cout << '\n';
-    }
-    /*while(true){
+    bool xd=true;
+    while(xd){
         ll mini=1e9;
         for(ll i=0;i<n;i++){
             if(nece[n-1][i]==0)continue;
             mini=min(mini,can[i]/nece[n-1][i]);
+            if(nece[n-1][i]>can[i]){
+                xd=false;
+                break;
+            }
         }
-    }*/
+        can[n-1]+=mini;
+        for(int i=0;i<n;i++){
+            if(nece[n-1][i]==0)continue;
+            can[i]-=mini*nece[n-1][i];
+            if(can[i]!=0)continue;
+            //todo lo que necesita i hay que cambiar
+            for(ll j=n-1;j>=0;j--){
+                int need=nece[j][i];
+                for(int k=n-1;k>=0;k--)nece[j][k]+=nece[j][i]*nece[i][k];
+                nece[j][i]-=need;
+            }
+        }
+        //ajustar? si es mayor
+        //no se si es necesario esto
+        for(ll i=0;i<n;i++){
+            for(ll j=i;j>=0;j--){
+                //need nece[i][j] pero solo can[j]
+                if(can[j]>=nece[i][j])continue;
+                //cambiar nece[i][j]-can[j];
+                ll need=nece[i][j]-can[j];
+                for(ll k=j;k>=0;k--)nece[i][k]+=need*nece[j][k];
+                nece[i][j]-=need;
+            }
+        }
+    }
+    cout << can[n-1];
 }
