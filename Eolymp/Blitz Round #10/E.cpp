@@ -6,44 +6,39 @@ using namespace std;
 typedef long long ll;
 typedef vector<int> vi;
 typedef vector<long long> vll;
-int n,k,t;
+bool xd;
+int n,k,t,nextpar,nextimpar,cantiimp,cantipar,cantirep;
 int main(){
     ios_base::sync_with_stdio(0);
     cin.tie(0);cout.tie(0);
     cin >> t;
     while(t--){
         cin >> n >> k;
-        int cantiimp=(n+1)/2,cantipar=n-cantiimp,sobra=n%k,canrep=n/k;
-        bool xd=false;
-        int lastpar=0,lastimp=-1;
-        vector<int> per(n);
-        for(int i=1;i<=k;i++){
-            //si hay i par y k-i impar
-            if((k-i)%2==0)continue;
-            if(i*canrep<=cantipar && cantipar<=i*canrep+i){
+        cantiimp=(n+1)/2;
+        cantipar=n-cantiimp;
+        nextpar=xd=0;
+        nextimpar=-1;
+        cantirep=n/k;
+        for(int a=1;a<=cantiimp && !xd;a+=2){
+            //uso a impares y k-a pares en cada rep
+            int sobraimp=cantiimp-cantirep*a;
+            int sobrapar=cantipar-cantirep*(k-a);
+            if(sobraimp+sobrapar==(n%k) && sobraimp<=a && sobrapar<=k-a && cantirep*a<=cantiimp && cantirep*(k-a)<=cantipar && sobraimp>=0 && sobrapar>=0){
+                //entra
+                //primero sobraimp impares en cada rep y cobrapar pares en cada rep y completar el resto
+                int primeimp=sobraimp,primepar=sobrapar,compleimp=a-sobraimp,complepar=k-a-sobrapar;
+                for(int i=0;i<cantirep;i++){
+                    for(int j=0;j<primeimp;j++)cout << (nextimpar+=2) << ' ';
+                    for(int j=0;j<primepar;j++)cout << (nextpar+=2) << ' ';
+                    for(int j=0;j<compleimp;j++)cout << (nextimpar+=2) << ' ';
+                    for(int j=0;j<complepar;j++)cout << (nextpar+=2) << ' ';
+                }
+                for(int j=0;j<primeimp;j++)cout << (nextimpar+=2) << ' ';
+                for(int j=0;j<primepar;j++)cout << (nextpar+=2) << ' ';
                 xd=true;
-                int fir=cantipar-i*canrep;
-                //cout << i << ' ' << fir << endl;
-                for(int i=0;i<fir;i++)per[i]=(lastpar+=2);
-                for(int j=k-1,con=0;con<i-fir;j--,con++){
-                    per[j]=(lastpar+=2);
-                }
-                for(int i=fir;i<k;i++){
-                    if(per[i]!=0)break;
-                    per[i]=(lastimp+=2);
-                }
-                for(int i=k;i<n;i++){
-                    if(per[i-k]%2==0)per[i]=(lastpar+=2);
-                    else per[i]=(lastimp+=2);
-                }
-                break;
             }
         }
-        if(xd){
-            for(int i=0;i<n;i++){
-                cout << per[i] << ' ';
-            }
-            cout << '\n';
-        }else cout << "-1\n";
+        if(!xd)cout << "-1";
+        cout << '\n';
     }
 }
