@@ -25,7 +25,7 @@ int main(){
             }else{
                 if(mini==-1)mini=tempmini;
                 else if(nums[tempmini].first.second<nums[mini].first.second)mini=tempmini;
-                tempmini=nums[i].second;
+                tempmini=i;
             }
             res[nums[i].second]=-2;
             if(mini!=-1 && nums[mini].first.second<nums[i].first.second){
