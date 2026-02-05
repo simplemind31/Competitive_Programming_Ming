@@ -1,57 +1,121 @@
+// Cookies — O(N^2 * (log N + K log K)) practical implementation
 #include <bits/stdc++.h>
 using namespace std;
-typedef long long ll;
-ll n,k,maxi=0,canposi;
+using ll = long long;
+
 int main(){
-    ios_base::sync_with_stdio(0);
-    cin.tie(0);cout.tie(0);
-    // supon la respuesta esta entre i,j
-    // cambiar k peores de cada rango por k mejores
-    cin >> n >> k;
-    ll nums[n],psum[n];
-    pair<ll,ll> ord[n];
-    for(ll i=0;i<n;i++){
-        cin >> nums[i];
-        ord[i]={nums[i],i};
-    }
-    sort(ord,ord+n);
-    reverse(ord,ord+n);
-    psum[0]=ord[0].first;
-    for(int i=1;i<n;i++){
-        psum[i]=psum[i-1]+ord[i].first;
-    }
-    for(int i=0;i<k;i++){
-        maxi=max(maxi,psum[i]);
-    }
-    for(ll i=0;i<n;i++){
-        ll suma=0;
-        vector<bool> usado(n);
-        vector<ll> exis;
-        for(ll j=i;j<n;j++){
-            // los k peores fuera
-            usado[j]=true;
-            suma+=nums[j];
-            maxi=max(maxi,suma);
-            exis.push_back(nums[j]);
-            ll pos=exis.size()-1;
-            while(pos>0){
-                if(exis[pos]<exis[pos-1])swap(exis[pos],exis[pos-1]);
-                else break;
-                pos--;
-            }
-            ll sumanue=suma;
-            ll l=0,poss=0;
-            while(l<k && poss<n && l<exis.size()){
-                if(usado[ord[poss].second])poss++;
-                else{
-                    sumanue+=ord[poss].first;
-                    sumanue-=exis[l];
-                    maxi=max(maxi,sumanue);
-                    l++;
-                    poss++;
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    int N, K;
+    if (!(cin >> N >> K)) return 0;
+    vector<int> A(N);
+    for (int i = 0; i < N; ++i) cin >> A[i];
+
+    // Precompute total frequency/multiset of outside elements initially (for l=0)
+    ll best = 0; // we allow not opening -> 0
+
+    // For each l, we'll expand r and maintain:
+    // outside_rest: multiset of elements currently outside (not in [l..r])
+    // outsideKlarge: multiset containing up to K largest elements from outside
+    // inside_rest: multiset of inside elements that are not in the K smallest
+    // insideKsmall: multiset containing up to K smallest elements from inside
+    for (int l = 0; l < N; ++l) {
+        // initialize outside as all elements
+        multiset<int> outside_rest, outsideKlarge;
+        multiset<int> inside_rest, insideKsmall;
+        ll outsideKsum = 0, insideKsum = 0;
+        for (int i = 0; i < N; ++i) outside_rest.insert(A[i]);
+
+        ll curSum = 0; // sum of current subarray [l..r]
+        for (int r = l; r < N; ++r) {
+            // move A[r] from outside to inside
+            // remove one occurrence from outside sets
+            auto it_out_large = outsideKlarge.find(A[r]);
+            if (it_out_large != outsideKlarge.end()) {
+                outsideKsum -= A[r];
+                outsideKlarge.erase(it_out_large);
+                // refill outsideKlarge from outside_rest largest if possible
+                if (!outside_rest.empty()) {
+                    auto it = prev(outside_rest.end());
+                    int val = *it;
+                    outside_rest.erase(it);
+                    outsideKlarge.insert(val);
+                    outsideKsum += val;
+                }
+            } else {
+                // it must be in outside_rest
+                auto it = outside_rest.find(A[r]);
+                if (it != outside_rest.end()) outside_rest.erase(it);
+                else {
+                    // rare but for correctness: if not found in outsideKlarge nor outside_rest,
+                    // it might have been moved earlier; skip.
                 }
             }
-        }
-    }
-    cout << maxi;
+
+            // add A[r] to inside; we want insideKsmall to contain up to K smallest inside elements
+            if ((int)insideKsmall.size() < K) {
+                insideKsmall.insert(A[r]);
+                insideKsum += A[r];
+            } else {
+                if (!insideKsmall.empty() && A[r] < *prev(insideKsmall.end())) {
+                    // replace the largest in insideKsmall with new smaller
+                    int largest = *prev(insideKsmall.end());
+                    insideKsmall.erase(prev(insideKsmall.end()));
+                    insideKsum -= largest;
+                    insideKsmall.insert(A[r]);
+                    insideKsum += A[r];
+                    inside_rest.insert(largest);
+                } else {
+                    inside_rest.insert(A[r]);
+                }
+            }
+
+            curSum += A[r];
+
+            // Now we must also ensure outsideKlarge contains up to K largest from outside sets:
+            // If outsideKlarge size < K and outside_rest nonempty, move largest from outside_rest to outsideKlarge.
+            while ((int)outsideKlarge.size() < K && !outside_rest.empty()) {
+                auto it = prev(outside_rest.end());
+                int val = *it;
+                outside_rest.erase(it);
+                outsideKlarge.insert(val);
+                outsideKsum += val;
+            }
+
+            // Prepare vectors of up to K smallest inside and up to K largest outside
+            vector<int> insideVec;
+            insideVec.reserve(insideKsmall.size());
+            for (int v : insideKsmall) insideVec.push_back(v);
+            // insideVec already sorted ascending because multiset iterates ascending
+
+            vector<int> outsideVec;
+            outsideVec.reserve(outsideKlarge.size());
+            // we want descending order of outsideVec (largest first)
+            for (auto it = outsideKlarge.rbegin(); it != outsideKlarge.rend(); ++it) outsideVec.push_back(*it);
+
+            int maxT = min({K, (int)insideVec.size(), (int)outsideVec.size()});
+            if (maxT == 0) {
+                // no beneficial swap possible
+                best = max(best, curSum);
+                continue;
+            }
+
+            // Prefix sums
+            vector<ll> prefIn(maxT+1, 0), prefOut(maxT+1, 0);
+            for (int t = 1; t <= maxT; ++t) {
+                prefIn[t] = prefIn[t-1] + insideVec[t-1];   // t-th smallest inside
+                prefOut[t] = prefOut[t-1] + outsideVec[t-1]; // t-th largest outside
+            }
+
+            ll curBestForThis = curSum; // t=0
+            for (int t = 1; t <= maxT; ++t) {
+                ll gain = prefOut[t] - prefIn[t];
+                if (gain > 0) curBestForThis = max(curBestForThis, curSum + gain);
+            }
+            best = max(best, curBestForThis);
+        } // end r loop
+    } // end l loop
+
+    cout << best << "\n";
+    return 0;
 }

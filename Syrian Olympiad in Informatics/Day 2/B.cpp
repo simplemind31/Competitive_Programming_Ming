@@ -1,103 +1,95 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-ll n,m,q,a,b;
-string st,password;
-int miniconv[26][26];
-struct segment{
-    vector<ll> arr,seg;
-    void build(int node,int l,int r){
-        if(l==r){
-            seg[node]=arr[l];
-            return;
+
+const ll INF = 1e18;
+
+int n, m, q;
+string safe_str, password;
+vector<ll> cost;
+
+int dist[26][26];
+
+void precompute_distances() {
+    for (int i = 0; i < 26; i++) {
+        for (int j = 0; j < 26; j++) {
+            int forward = (j - i + 26) % 26;
+            int backward = (i - j + 26) % 26;
+            dist[i][j] = min(forward, backward);
         }
-        int hiji=2*node+1,hijd=2*node+2,mid=(l+r)>>1;
-        build(hiji,l,mid);
-        build(hijd,mid+1,r);
-        seg[node]=min(seg[hiji],seg[hijd]);
     }
-    ll query(int node,int l,int r,int i,int j){
-        if(r<i ||j<l)return 1e9;
-        if(i<=l && r<=j)return seg[node];
-        int hiji=2*node+1,hijd=2*node+2,mid=(l+r)>>1;
-        return min(query(hiji,l,mid,i,j),query(hijd,mid+1,r,i,j));
+}
+
+void precompute_costs() {
+    cost.assign(n, INF);
+    for (int i = 0; i + m <= n; i++) {
+        ll sum = 0;
+        for (int j = 0; j < m; j++) {
+            sum += dist[safe_str[i + j] - 'a'][password[j] - 'a'];
+        }
+        cost[i] = sum;
     }
-    segment(vector<ll> x){
-        arr.resize(n);
-        arr=x;
-        seg.resize(4*n+5);
-        build(0,0,n-1);
+}
+
+ll solve_range(int L, int R) {
+    int len = R - L + 1;
+    if (len < m) return -1;
+    
+    int t = len / m;
+    int max_starts = R - m + 1 - L + 1;
+    
+    vector<vector<ll>> dp(max_starts + 1, vector<ll>(t + 1, INF));
+    dp[0][0] = 0;
+    
+    for (int i = 1; i <= max_starts; i++) {
+        int start_pos = L + i - 1;
+        
+        for (int j = 0; j <= t; j++) {
+            dp[i][j] = dp[i - 1][j];
+            
+            if (j > 0) {
+                if (i >= m) {
+                    if (dp[i - m][j - 1] < INF) {
+                        ll new_cost = dp[i - m][j - 1] + cost[start_pos];
+                        if (new_cost < dp[i][j]) {
+                            dp[i][j] = new_cost;
+                        }
+                    }
+                } else if (j == 1) {
+                    if (cost[start_pos] < dp[i][j]) {
+                        dp[i][j] = cost[start_pos];
+                    }
+                }
+            }
+        }
     }
-};
-int main(){
+    
+    return dp[max_starts][t];
+}
+
+int main() {
     ios_base::sync_with_stdio(0);
-    cin.tie(0);cout.tie(0);
+    cin.tie(0);
+    
     cin >> n >> m >> q;
-    cin >> st >> password;
-    for(int i=0;i<26;i++){
-        for(int j=i;j<26;j++){
-            miniconv[i][j]=miniconv[j][i]=min(j-i,i+26-j);
-        }
+    cin >> safe_str >> password;
+    
+    precompute_distances();
+    precompute_costs();
+    
+    // Debug: print costs
+    cerr << "Costs: ";
+    for (int i = 0; i < n; i++) {
+        if (cost[i] < INF) cerr << i << ":" << cost[i] << " ";
     }
-    if(n>1000){
-        vector<ll> need(n);
-        for(int i=0;i<m;i++)need[i]=1e9;
-        for(int i=m-1;i<n;i++){
-            ll suma=0;
-            for(int j=i-m+1;j<=i;j++){
-                suma+=miniconv[st[j]-'a'][password[j-(i-m+1)]-'a'];
-            }
-            need[i]=suma;
-        }
-        segment clave(need);
-        while(q--){
-            cin >> a >> b;
-            if(b-a+1<m){
-                cout << "-1\n";
-                continue;
-            }
-            ll resp=clave.query(0,0,n-1,a+m-1,b);
-            cout << resp << '\n';
-        }
-        return 0;
+    cerr << endl;
+    
+    while (q--) {
+        int L, R;
+        cin >> L >> R;
+        ll ans = solve_range(L, R);
+        cout << (ans >= INF ? -1 : ans) << '\n';
     }
-    ll dp[n][n][m+1];
-    // si tengo entre i y j, con k de espacios sin usar
-    for(int i=0;i<n;i++){
-        for(int j=0;j<n;j++){
-            for(int k=0;k<=m;k++)dp[i][j][k]=1e9;
-        }
-    }
-    for(int i=0;i+m-1<n;i++){
-        //i,i+m-1
-        ll sum=0;
-        for(int j=i;j<i+m-1 && j<n;j++){
-            dp[i][j][(j-i+1)]=0;
-        }
-        for(int j=i;j<=i+m-1;j++){
-            sum+=miniconv[st[j]-'a'][password[j-i]-'a'];
-        }
-        dp[i][i+m-1][0]=sum;
-        for(int j=i+m;j<n;j++){
-            // no uso j:
-            for(int k=1;k<=m;k++)dp[i][j][k]=min(dp[i][j][k],dp[i][j-1][k-1]);
-            // uso j:
-            sum=0;
-            for(int k=j-m+1;k<=j;k++){
-                sum+=miniconv[st[k]-'a'][password[k-(j-m+1)]-'a'];
-            }
-            for(int k=0;k<=m;k++){
-                dp[i][j][k]=min(dp[i][j][k],sum+dp[i][j-m][k]);
-                //cout << i << ' ' << j << ' ' << k << ' ' << dp[i][j][k] << '\n';
-            }
-        }
-    }
-    while(q--){
-        cin >> a >> b;
-        if(b-a+1<m){
-            cout << "-1\n";
-            continue;
-        }
-        cout << dp[a][b][(b-a+1)%m] << '\n';
-    }
+    
+    return 0;
 }
