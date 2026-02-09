@@ -3,12 +3,14 @@
 using namespace std;
 int n,cant[3],con,last=7;
 int main(){
-    ifstream in("measurement.in");
-    ofstream out("measurement.out");
-    in >> n;
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);cout.tie(0);
+    freopen("measurement.in","r",stdin);
+    freopen("measurement.out","w",stdout);
+    cin >> n;
     vector<tuple<int,string,string>> cows(n);
     for(int i=0;i<n;i++){
-        in >> get<0>(cows[i]) >> get<1>(cows[i]) >> get<2>(cows[i]);
+        cin >> get<0>(cows[i]) >> get<1>(cows[i]) >> get<2>(cows[i]);
     }
     sort(ALL(cows));
     for(int i=0;i<n;i++){
@@ -35,5 +37,5 @@ int main(){
             last=num;
         }
     }
-    out << con;
+    cout << con;
 }

@@ -1,9 +1,8 @@
 #include <bits/stdc++.h>
 using namespace std;
-typedef long long ll;
 int t,n;
 bool cmp(pair<int,int> a,pair<int,int> b){
-    if(a.second==b.second)return a.first<b.second;
+    if(a.second==b.second)return a.first<b.first;
     return a.second<b.second;
 }
 int main(){
@@ -30,8 +29,7 @@ int main(){
                 pair<int,int> now;
                 if(p->second<nums[i].first)now={nums[i].first,nums[i].first};
                 else now={p->second+1,p->second+1};
-                if(now.first==p->second+1){
-                    // unir
+                if(now.first-1==p->second){
                     now.first=p->first;
                     usado.erase(p);
                 }
