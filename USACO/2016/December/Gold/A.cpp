@@ -16,11 +16,22 @@ int main(){
     freopen("moocast.in","r",stdin);
     freopen("moocast.out","w",stdout);
     cin >> n;
-    for(int i=0;i<n;i++)cin >> nums[i].first >> nums[i].second;
-    int l=0,r=1e9;
-    while(l<r){
-        int mid=(l+r)>>1;
-        for(int i=0;i<n;i++)tam[dsu[i]=i]=1;
-        
+    for(int i=0;i<n;i++){
+        tam[dsu[i]=i]=1;
+        cin >> nums[i].first >> nums[i].second;
     }
+    int l=0,r=1e9;
+    vector<pair<int,pair<int,int>>> edges;
+    for(int i=0;i<n;i++){
+        for(int j=i+1;j<n;j++){
+            edges.push_back({pow(nums[i].first-nums[j].first,2)+pow(nums[i].second-nums[j].second,2),{i,j}});
+        }
+    }
+    sort(edges.begin(),edges.end());
+    for(auto u:edges){
+        maxi=u.first;
+        n-=unite(u.second.first,u.second.second);
+        if(n==1)break;
+    }
+    cout << maxi;
 }
