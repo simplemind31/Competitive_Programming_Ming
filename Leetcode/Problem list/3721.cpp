@@ -10,18 +10,16 @@ public:
         void propagate(int node,int l,int r){
             st[node].first+=lazy[node];
             st[node].second+=lazy[node];
-            if(l==r){
-                lazy[node]=0;
-                return;
+            if(l!=r){
+                int hiji=2*node+1,hijd=2*node+2;
+                lazy[hiji]+=lazy[node];
+                lazy[hijd]+=lazy[node];
             }
-            int hiji=2*node+1,hijd=2*node+2;
-            lazy[hiji]+=lazy[node];
-            lazy[hijd]+=lazy[node];
             lazy[node]=0;
         }
         void update(int node,int l,int r,int i,int j,int val){
-            if(r<i ||j<l)return;
             propagate(node,l,r);
+            if(r<i ||j<l)return;
             if(i<=l && r<=j){
                 lazy[node]+=val;
                 propagate(node,l,r);
@@ -43,11 +41,12 @@ public:
             st[node]={min(st[hiji].first,st[hijd].first),max(st[hiji].second,st[hijd].second)};
         }
         pair<int,int> query(int node,int l,int r,int i,int j){
-            if(r<i || j<l)return {1e9,-1e9};
             propagate(node,l,r);
+            if(r<i || j<l)return {1e9,-1e9};
             if(i<=l && r<=j)return st[node];
             int mid=(l+r)>>1,hiji=2*node+1,hijd=2*node+2;
-            pair<int,int> iz=query(mid,)
+            pair<int,int> iz=query(hiji,l,mid,i,j),de=query(hijd,mid+1,r,i,j);
+            return {min(iz.first,de.first),max(iz.second,de.second)};
         }
         segment(vector<int> a){
             arr=a;
@@ -58,8 +57,8 @@ public:
         }
     };
     int longestBalanced(vector<int>& nums){
-        int n=nums.size();
-        queue<int> last[100001];
+        int n=nums.size(),res=0;
+        map<int,queue<int>> last;
         vector<int> psum(n+1);
         for(int i=0;i<n;i++){
             last[nums[i]].push(i);
@@ -74,8 +73,14 @@ public:
             // encontrar un j tal que [i,j] es balanceado
             // como solo considero de i adelante, entonces psum[i-1](actalizado)=0
             // necesito econtrar uno de j que sea 0;
-
-
+            int l=i+res,r=n;
+            while(l<r){
+                int mid=(l+r+1)>>1;
+                pair<int,int> ans=clav.query(0,0,n,mid,r);
+                if(ans.first<=0 && ans.second>=0)l=mid;
+                else r=mid-1;
+            }
+            res=max(res,l-(i+1)+1);
             // updateo la contribution
             if(nums[i]&1)clav.update(0,0,n,i+1,n,-1);
             else clav.update(0,0,n,i+1,n,1);
@@ -85,5 +90,6 @@ public:
                 else clav.update(0,0,n,last[nums[i]].front()+1,n,-1);
             }
         }
+        return res;
     }
 };

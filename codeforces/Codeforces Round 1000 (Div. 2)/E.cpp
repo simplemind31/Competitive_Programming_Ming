@@ -25,9 +25,7 @@ ll dfs(int now,int ante){
             cant_hij+=a;
         }
     }
-    if(alt[now]!=0){
-        sum-=(2*alt[now]-1)*cant_hij;
-    }
+    if(alt[now]!=0)sum-=(2*alt[now]-1)*cant_hij;
     return ++cant_hij;
 }
 int main(){

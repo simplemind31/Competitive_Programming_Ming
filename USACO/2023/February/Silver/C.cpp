@@ -17,12 +17,12 @@ int main(){
         tiempo[i]=1e9+7;
         sort(REV(graph[i]));
     }
-    tiempo[0]=0;
-    priority_queue<pair<int,int>> dij;
+    tiempo[0]=-1e9;
+    queue<pair<int,int>> dij;
     // tiempo, nodo
-    dij.push({0,0});
+    dij.push({-1e9,0});
     while(!dij.empty()){
-        int top=dij.top().second;
+        int top=dij.front().second;
         dij.pop();
         while(last[top]<graph[top].size() && graph[top][last[top]].first>=tiempo[top]+over[top]){
             if(tiempo[graph[top][last[top]].second.first]>graph[top][last[top]].second.second){
@@ -32,5 +32,6 @@ int main(){
             last[top]++;
         }
     }
+    tiempo[0]=0;
     for(int i=0;i<n;i++)cout << ((tiempo[i]==1e9+7)?-1:tiempo[i]) << '\n';
 }
