@@ -1,29 +1,49 @@
 #include <bits/stdc++.h>
 using namespace std;
-int n,q,can,a,b;
-pair<int,int> pad[1002][1002];
-char mat[1002][1002],c;
-bitset<1002> pertenececiclo[1002],imposi[1002];
+int n,canlibre,q;
+pair<int,int> pad[1004][1004];
+char mat[1004][1004];
+bitset<1004> libre[1004];
+void liberar(int x,int y){
+    if(libre[x][y])return;
+    libre[x][y]=true;
+    canlibre++;
+    if(x-1>=0){
+        if(mat[x-1][y]==0 || mat[x-1][y]=='D')liberar(x-1,y);
+    }
+    if(x+1<n+4){
+        if(mat[x+1][y]==0 || mat[x+1][y]=='U')liberar(x+1,y);
+    }
+    if(y-1>=0){
+        if(mat[x][y-1]==0 || mat[x][y-1]=='R')liberar(x,y-1);
+    }
+    if(y+1<n+4){
+        if(mat[x][y+1]==0 || mat[x][y+1]=='L')liberar(x,y+1);
+    }
+}
 int main(){
     ios_base::sync_with_stdio(0);
     cin.tie(0);cout.tie(0);
     cin >> n >> q;
-    for(int i=0;i<=1001;i++){
-        for(int j=0;j<=1001;j++){
-            pad[i][j]={i,j};
-        }
+    vector<pair<pair<int,int>,char>> query(q);
+    for(int i=0;i<q;i++){
+        cin >> query[i].first.first >> query[i].first.second >> query[i].second;
+        query[i].first.first++;
+        query[i].first.second++;
+        mat[query[i].first.first][query[i].first.second]=query[i].second;
     }
-    while(q--){
-        cin >> a >> b >> c;
-        if(c=='L')pad[a][b]={a-1,b};
-        else if(c=='R')pad[a][b]={a+1,b};
-        else if(c=='U')pad[a][b]={a,b-1};
-        else pad[a][b]={a,b+1};
-        if(imposi[a][b]){
-            // está encerrado desde hace tiempo
-            cout << can << '\n';
-            continue;
-        }
-        // esta encerrado si todo alrededor es imposi
+    for(int i=0;i<n+4;i++){
+        liberar(i,0);
+        liberar(i,n+3);
+        liberar(0,i);
+        liberar(n+3,i);
     }
+    vector<int> res;
+    for(int i=q-1;i>=0;i--){
+        res.push_back((n+4)*(n+4)-canlibre);
+        mat[query[i].first.first][query[i].first.second]=0;
+        if(libre[query[i].first.first][query[i].first.second-1] || libre[query[i].first.first][query[i].first.second+1] || libre[query[i].first.first-1][query[i].first.second] || libre[query[i].first.first+1][query[i].first.second])liberar(query[i].first.first,query[i].first.second);
+    }
+    reverse(res.begin(),res.end());
+    for(auto u:res)cout << u << '\n';
 }
