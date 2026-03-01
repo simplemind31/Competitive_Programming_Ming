@@ -6,3 +6,7 @@ Stack Trabajo
 - nodejs npm o yarn
 npm install -g npm
 Set-ExecutionPolicy -ExcecutionPolicy Re
+empezar proyecto
+npm init -y
+npm install -D typescript tsx @types/node
+npx tsx calculadora.ts
