@@ -3,37 +3,34 @@
 using namespace std;
 int n,m,a,b;
 string st;
-vector<int> dsu,tam,res;
-int find(int a,bool unir){
-    if(a==dsu[a]){
-        if(unir)return res[a];
-        return a;
-    }
-    if(unir && res[a]!=m)return res[a];
-    if(res[a]==m)res[a]=find(dsu[a],true);
-    return dsu[a]=find(dsu[a],false);
-}
+vector<int> dsu,res;
+vector<vector<int>> lis;
+int find(int a){return (a==dsu[a])?a:dsu[a]=find(dsu[a]);}
 bool unite(int a,int b){
-    if((a=find(a,false))==(b=find(b,false)))return false;
-    if(tam[a]<tam[b])swap(a,b);
-    if(b==find(0,false)){
-        tam[dsu[a]=b]+=tam[a];
-        return true;
-    }
-    tam[dsu[b]=a]+=tam[b];
+    if((a=find(a))==(b=find(b)))return false;
+    if(lis[a].size()<lis[b].size())swap(a,b);
+    for(auto u:lis[b])lis[a].push_back(u);
+    lis[b].clear();
+    dsu[b]=a;
     return true;
+}
+void expand(int node){
+    for(auto u:lis[node])res[u]=res[node];
+    lis[node].clear();
 }
 int main(){
     ios_base::sync_with_stdio(0);
     cin.tie(0);cout.tie(0);
     cin >> n >> m;
-    dsu.resize(n);tam.resize(n);
+    dsu.resize(n);
     int hand[n][2];
     res.assign(n,m);
+    lis.resize(n);
     pair<int,int> op[m];
     vector<pair<int,int>> edges;
     for(int i=0;i<n;i++){
-        tam[dsu[i]=i]=1;
+        dsu[i]=i;
+        lis[i]={i};
         cin >> hand[i][0] >> hand[i][1];
         a=--hand[i][0];b=--hand[i][1];
         if(a<b)swap(a,b);
@@ -54,24 +51,24 @@ int main(){
     for(int i=0;i<edges.size();i++){
         if(!quitado[i])unite(edges[i].first,edges[i].second);
     }
-    for(int i=0;i<n;i++){
-        if(find(0,false)==find(i,false))res[i]=-1;
-    }
+    res[find(0)]=-1;
+    expand(find(0));
     for(int i=m-1;i>=0;i--){
-        a=find(op[i].first,false);
-        b=find(hand[op[i].first][op[i].second],false);
-        if(a!=find(0,false) && b==find(0,false)){
-            res[a]=i;
+        a=op[i].first;
+        b=hand[op[i].first][op[i].second];
+        if(find(a)!=find(0) && find(b)==find(0)){
+            res[find(a)]=i;
+            expand(find(a));
             unite(a,b);
-        }else if(a==find(0,false) && b!=find(0,false)){
-            res[b]=i;
+        }else if(find(a)==find(0) && find(b)!=find(0)){
+            res[find(b)]=i;
+            expand(find(b));
             unite(a,b);
         }else{
             unite(a,b);
         }
     }
     for(int i=0;i<n;i++){
-        find(i,false);
         cout << res[i] << '\n';
     }
 }
