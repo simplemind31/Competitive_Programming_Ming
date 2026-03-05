@@ -39,20 +39,48 @@ matriz operator*(matriz x,matriz y){
     }
     return C;
 }
+matriz matriz_magica(int n){
+    matriz mat(n,vector<int>(n));
+    vector<pair<int,int>> pos(n*n);
+    mat[0][n/2]=1;
+    pos[0]={0,n/2};
+    for(int i=0;i<n*n-1;i++){
+        if(pos[i].first==0 && pos[i].second!=n-1){
+            pos[i+1]={n-1,pos[i].second+1};
+        }else if(pos[i].second==n-1 && pos[i].first!=0){
+            pos[i+1]={pos[i].first-1,0};
+        }else if(pos[i].first==0){
+            pos[i+1]={pos[i].first+1,pos[i].second};
+        }else{
+            if(pos[i].first-1>=0 && pos[i].second+1<n && mat[pos[i].first-1][pos[i].second+1]==0)pos[i+1]={pos[i].first-1,pos[i].second+1};
+            else pos[i+1]={pos[i].first+1,pos[i].second};
+        }
+        mat[pos[i+1].first][pos[i+1].second]=i+2;
+    }
+    return mat;
+}
 void imprimir(matriz x){
     int m=x.size(),n=x[0].size();
     for(int i=0;i<m;i++){
+        cout << "|";
+        bool xd=false;
         for(int j=0;j<n;j++){
-            cout << x[i][j] << ' ';
+            if(xd)cout << ' ';
+            cout << x[i][j];
+            xd=true;
         }
-        cout << '\n';
+        cout << "|\n";
     }
 }
 int main(){
     int n,m;
+    /*
     cin >> p >> q;
     matriz A=obtener(p,q);
     cin >> r >> s;
     matriz B=obtener(r,s);
     imprimir(A*B);
+    */
+    cin >> n;
+    imprimir(matriz_magica(n));
 }
