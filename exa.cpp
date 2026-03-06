@@ -2,6 +2,7 @@
 using namespace std;
 int n;
 int main(){
-    cin >> n;
-    cout << 2*n;
+    for(int i=0;i<2212;i++){
+        cout << "Debo ganar en la IOI o Diego me pega\n";
+    }
 }

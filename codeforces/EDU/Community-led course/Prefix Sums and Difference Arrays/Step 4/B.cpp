@@ -2,19 +2,19 @@
 #define ALL(x) x.begin(),x.end()
 using namespace std;
 typedef long long ll;
-int n,q,a,b,c;
+ll n,q,a,b,c;
 int main(){
     ios_base::sync_with_stdio(0);
     cin.tie(0);cout.tie(0);
     cin >> n;
-    vector<ll> nums(n+3);
-    for(int i=2;i<=n+1;i++){
+    vector<ll> nums(n+5);
+    for(ll i=2;i<=n+1;i++){
         cin >> nums[i];
     }
-    for(int i=n+2;i>=1;i--){
+    for(ll i=n+2;i>=1;i--){
         nums[i]=nums[i]-nums[i-1];
     }
-    for(int i=n+2;i>=1;i--){
+    for(ll i=n+2;i>=1;i--){
         nums[i]=nums[i]-nums[i-1];
     }
     cin >> q;
@@ -22,23 +22,29 @@ int main(){
     // b[l]...b[r]
 
     d[i]+=step for i in [l, r]
-    d[r+1]-=(r-l+1)*step
+
     dd[l]+=step
-    dd[r]-=step;
+    dd[r+1]-=step;
+
+    d[r+1]-=(r-l+1)*step
+
+    dd[r+1]-=(r-l+1)*step
+    dd[r+2]+=(r-l+1)*step
     */
     while(q--){
         cin >> a >> b >> c;
         nums[a+1]+=c;
+        nums[b+2]-=c;
         nums[b+2]-=(b-a+1)*c;
-        nums[b+3]+=(b-a)*c;
+        nums[b+3]+=(b-a+1)*c;
     }
-    for(int i=1;i<=n+2;i++){
+    for(ll i=1;i<=n+2;i++){
         nums[i]+=nums[i-1];
     }
-    for(int i=1;i<=n+2;i++){
+    for(ll i=1;i<=n+2;i++){
         nums[i]+=nums[i-1];
     }
-    for(int i=2;i<=n+1;i++){
+    for(ll i=2;i<=n+1;i++){
         cout << nums[i] << ' ';
     }
 }
