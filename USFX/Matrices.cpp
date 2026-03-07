@@ -72,15 +72,13 @@ void imprimir(matriz x){
         cout << "|\n";
     }
 }
+matriz X={{0,1},{1,0}};
+matriz NOT(matriz x){
+    return X*x;
+}
 int main(){
     int n,m;
-    /*
-    cin >> p >> q;
-    matriz A=obtener(p,q);
-    cin >> r >> s;
-    matriz B=obtener(r,s);
-    imprimir(A*B);
-    */
-    cin >> n;
-    imprimir(matriz_magica(n));
+    cin >> n >> m;
+    matriz ket=obtener(n,m);
+    imprimir(NOT(ket));
 }
