@@ -2,43 +2,49 @@
 #define ALL(x) x.begin(),x.end()
 using namespace std;
 typedef long long ll;
-int t;
-string x,y;
+int t,n,a,b,da,db,x,y,pos;
+vector<vector<int>> graph;
+vector<int> dist;
+void dfs(int node,int ante){
+    if(dist[node]>dist[pos])pos=node;
+    for(auto u:graph[node]){
+        if(u==ante)continue;
+        dist[u]=dist[node]+1;
+        dfs(u,node);
+    }
+}
 int main(){
     ios_base::sync_with_stdio(0);
     cin.tie(0);cout.tie(0);
     cin >> t;
     while(t--){
-        cin >> x >> y;
-        int x0=0,x1=1e9;
-        // si hasta i hay par o impar 1s
-        int n=x.size();
-        for(int i=0;i<n;i++){
-            int con00,con11;
-            if(x[i]=='0'){
-                if(y[i]=='0'){
-                    //hay par cantidad de 1 hasta i
-                    con00=min(x0,x1+1);
-                    con11=min(x0+2,x1+1);
-                }else{
-                    //0,1
-                    con00=min(x0+1,x1+2);
-                    con11=min(x0+1,x1);
-                }
-            }else{
-                if(y[i]=='0'){
-                    //1,0
-                    con00=min(x0+1,x1);
-                    con11=min(x0+1,x1+2);
-                }else{
-                    //1,1
-                    con00=min(x0+2,x1+1);
-                    con11=min(x0,x1+1);
-                }
-            }
-            x0=con00;
-            x1=con11;
+        cin >> n >> a >> b >> da >> db;
+        graph.clear();
+        graph.resize(n);
+        dist.clear();
+        dist.resize(n);
+        pos=0;
+        a--;b--;
+        for(int i=1;i<n;i++){
+            cin >> x >> y;
+            graph[--x].push_back(--y);
+            graph[y].push_back(x);
         }
-        cout << min(x0,x1) << '\n';
+        if(2*da+1>db){
+            cout << "Alice\n";
+            continue;
+        }
+        // su distancia es <=da?
+        dfs(a,-1);
+        if(dist[b]<=da){
+            cout << "Alice\n";
+            continue;
+        }
+        dist.clear();
+        dist.resize(n);
+        dfs(pos,-1);
+        // diametro de <=2*da?
+        if(dist[pos]<=2*da)cout << "Alice\n";
+        else cout << "Bob\n";
     }
 }
