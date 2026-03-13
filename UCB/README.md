@@ -9,4 +9,5 @@ Set-ExecutionPolicy -ExcecutionPolicy Re
 empezar proyecto
 npm init -y
 npm install -D typescript tsx @types/node
+npm i --save-dev @types/node
 npx tsx calculadora.ts
