@@ -79,6 +79,8 @@ matriz NOT(matriz x){
 int main(){
     int n,m;
     cin >> n >> m;
-    matriz ket=obtener(n,m);
-    imprimir(NOT(ket));
+    matriz a=obtener(n,m);
+    cin >> n >> m;
+    matriz b=obtener(n,m);
+    imprimir(a*b);
 }
