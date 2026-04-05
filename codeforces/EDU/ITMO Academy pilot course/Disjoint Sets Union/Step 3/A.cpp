@@ -12,7 +12,7 @@ struct PersistentDSU{
     int find(int a){return (a==dsu[a])?a:find(dsu[a]);}
     bool unite(int a,int b){
         if((a=find(a))==(b=find(b)))return false;
-        if(tam[a]<tam[b]);
+        if(tam[a]<tam[b])swap(a,b);
         tam[dsu[b]=a]+=tam[b];
         ope.push_back({b,a});
         compo--;
@@ -31,8 +31,8 @@ struct PersistentDSU{
         checkpoint.pop_back();
     }
     PersistentDSU(int n){
-        tam.resize(n);
         dsu.resize(n);
+        tam.resize(n);
         for(int i=0;i<n;i++)tam[dsu[i]=i]=1;
         compo=n;
     }
