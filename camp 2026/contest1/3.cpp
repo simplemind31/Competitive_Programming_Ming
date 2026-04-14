@@ -12,13 +12,15 @@ int main(){
         nums[i].second=i+1;
     }
     sort(nums.begin(),nums.end());
-    int j=n-1;
-    for(int i=0;i<n;i++){
-        while(nums[i].first+nums[j].first>k && j-1>i)j--;
-        if(nums[i].first+nums[j].first==k){
+    int i=0,j=n-1;
+    while(i<j){
+        ll suma=nums[i].first+nums[j].first;
+        if(suma==k){
             cout << min(nums[i].second,nums[j].second) << ' ' << max(nums[i].second,nums[j].second);
             return 0;
         }
+        if(suma<k)i++;
+        else j--;
     }
     cout << "IMPOSSIBLE";
 }
