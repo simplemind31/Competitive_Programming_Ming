@@ -22,7 +22,7 @@ DEFAULT_REALTIME = True
 DEFAULT_FRAME_DELAY_SECONDS = 0.001
 DEFAULT_RENDER_MODE = "turn"  # Allowed: "turn", "move"
 DEFAULT_RENDER_BACKEND = "pygame"  # Allowed: "terminal", "pygame"
-DEFAULT_PLAYERS = ["nico", "IA", "ming", "candi"]
+DEFAULT_PLAYERS = ["nico", "gabriel", "ignacio", "ming"]
 MOVE_FORMAT = "absolute"  # Allowed: "absolute", "relative"
 
 PLAYER_COLORS = {
