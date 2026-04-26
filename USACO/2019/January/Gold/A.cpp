@@ -6,6 +6,7 @@ typedef long long ll;
 char c;
 int n,m,k;
 int bigmod(int b,int e){
+    if(b==0)return 0;
     int p=1;
     for(;e;e>>=1,b=1ll*b*b%MOD)if(e&1)p=1ll*p*b%MOD;
     return p;
@@ -13,6 +14,8 @@ int bigmod(int b,int e){
 int main(){
     ios_base::sync_with_stdio(0);
     cin.tie(0);cout.tie(0);
+    freopen("poetry.in","r",stdin);
+    freopen("poetry.out","w",stdout);
     cin >> n >> m >> k;//n word, m lines, k syllable
     int dp[k+1][n+1],sum[k+1],con[26],suma[n+1];
     //dp number of ways to get i syllables and ends with word j
@@ -30,19 +33,16 @@ int main(){
         }
     }
     for(int i=1;i<=n;i++)suma[word[i].second]=(suma[word[i].second]+dp[k][i])%MOD;
-    for(int i=1;i<=n;i++)cout << dp[k][i] << ' ';
-    cout << endl;
-    for(int i=1;i<=n;i++)cout << suma[i] << ' ';
-    cout << endl;
     while(m--){
         cin >> c;
         con[c-'A']++;
     }
     int res=1;
     for(int i=0;i<26;i++){
+        if(con[i]==0)continue;
         int tempsuma=0;
         for(int j=1;j<=n;j++){
-            if(suma[j]==0)continue;
+            // si A se lleva el grupo j, entonces 
             // pow(suma[j],con[i])
             tempsuma=(tempsuma+bigmod(suma[j],con[i]))%MOD;
         }
