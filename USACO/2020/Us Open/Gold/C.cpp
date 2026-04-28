@@ -3,17 +3,11 @@
 using namespace std;
 typedef long long ll;
 int n,MOD;
-int bigmod(int b,int e){
-    if(b==0)return 0;
-    int p=1;
-    for(;e;e>>=1,b=1ll*b*b%MOD)if(e&1)p=1ll*p*b%MOD;
-    return p;
-}
 int main(){
     ios_base::sync_with_stdio(0);
     cin.tie(0);cout.tie(0);
-    //freopen("exercise.in","r",stdin);
-    //freopen("exercise.out","w",stdout);
+    freopen("exercise.in","r",stdin);
+    freopen("exercise.out","w",stdout);
     cin >> n >> MOD;
     // sumatoria de todo k tal que lcm(a1,a2,a3,...,ax)=k ademas n es una combinacion lineal de a1,a2,...,ax
     // -> cada potencia de k aparece en ai como multiplo
@@ -23,4 +17,26 @@ int main(){
     // para un n,encontrar ais tal que n es combinacion lineal de ai, k=lcm(ai)
     // warning !! n no necesariamente debe ser combinacion lineal, porque si tengo ciclos de 1 entonces <=n
     // -> a1+a2+a3+...+ax<=n 
+    vector<int> primes;
+    vector<bool> criba(n+1);
+    criba[0]=criba[1]=1;
+    for(int i=2;i<=n;i++){
+        if(!criba[i])primes.push_back(i);
+        for(int j=0;j<primes.size() && i*primes[j]<=n;j++){
+            criba[i*primes[j]]=1;
+            if(i%primes[j]==0)break;
+        }
+    }
+    ll dp[n+1];
+    fill(dp,dp+(n+1),1);
+    for(int i=0;i<primes.size();i++){
+        for(int j=n;j>=0;j--){
+            int temp=primes[i];
+            while(j-temp>=0){
+                dp[j]=(dp[j]+dp[j-temp]*temp)%MOD;
+                temp=temp*primes[i];
+            }
+        }
+    }
+    cout << dp[n];
 }
