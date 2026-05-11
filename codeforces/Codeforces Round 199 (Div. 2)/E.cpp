@@ -1,135 +1,78 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-int n,k,a,b;
-vector<vector<int>> graph;
-struct segment{
-    int tam;
-    vector<int> a;
-    vector<pair<int,int>> st,lazy;
-    pair<int,int> merge(pair<int,int> x,pair<int,int> y){return {min(x.first,y.first),max(x.second,y.second)};}
-    void build(int node,int l,int r){
-        if(l==r){
-            st[node]={a[l],a[l]};
-            return;
-        }
-        int mid=(l+r)>>1,hiji=2*node+1,hijd=2*node+2;
-        build(hiji,l,mid);
-        build(hijd,mid+1,r);
-        st[node]=merge(st[hiji],st[hijd]);
-    }
-    void push_down(int node,int l,int r){
-        int mid=(l+r)>>1,hiji=2*node+1,hijd=2*node+2;
-        if(l!=r){
-            lazy[hiji]=merge(lazy[hiji],lazy[node]);
-            lazy[hijd]=merge(lazy[hijd],lazy[node]);
-        }
-        st[node]=merge(st[node],lazy[node]);
-        lazy[node]={1e9,-1e9};
-    }
-    void update(int node,int l,int r,int i,int j,int val){
-        push_down(node,l,r);
-        if(r<i || j<l)return;
-        if(i<=l && r<=j){
-            lazy[node]={val,val};
-            push_down(node,l,r);
-            return;
-        }
-        int mid=(l+r)>>1,hiji=2*node+1,hijd=2*node+2;
-        update(hiji,l,mid,i,j,val);
-        update(hijd,mid+1,r,i,j,val);
-        st[node]=merge(st[hiji],st[hijd]);
-    }
-    pair<int,int> query(int node,int l,int r,int i,int j){
-        push_down(node,l,r);
-        if(r<i || j<l)return {1e9,-1e9};
-        if(i<=l && r<=j)return st[node];
-        int mid=(l+r)>>1,hiji=2*node+1,hijd=2*node+2;
-        return merge(query(hiji,l,mid,i,j),query(hijd,mid+1,r,i,j));
-    }
-    segment(vector<int> x){
-        tam=x.size();
-        a=x;
-        st.resize(4*tam+5);
-        lazy.assign(4*tam+5,{1e9,-1e9});
-        build(0,0,tam-1);
-    }
-};
-int tiempo;
-vector<int> pad,depth,bigchild,pos,head,tin,tout;
-int dfs(int node){
+int n,k,a,b,tiempo,raiz;
+queue<int> bfs;
+vector<int> tin,depth,dist,red;
+vector<vector<int>> graph,sparse;
+void dfs(int node,int ante){
+    sparse[tiempo][0]=node;
     tin[node]=tiempo++;
-    int tam=1,tambig=0;
-    bigchild[node]=-1;
     for(auto u:graph[node]){
-        if(u==pad[node])continue;
-        pad[u]=node;
+        if(u==ante)continue;
         depth[u]=depth[node]+1;
-        int tamu=dfs(u);
-        tam+=tamu;
-        if(tamu>tambig){
-            tambig=tamu;
-            bigchild[node]=u;
-        }
-    }
-    tout[node]=tiempo-1;
-    return tam;
-}
-void descompose(int node,int h){
-    head[node]=h;
-    pos[node]=tiempo++;
-    if(bigchild[node]!=-1)descompose(bigchild[node],h);
-    for(auto u:graph[node]){
-        if(u==pad[node] || u==bigchild[node])continue;
-        descompose(u,u);
+        dfs(u,node);
+        sparse[tiempo++][0]=node;
     }
 }
 int main(){
     ios_base::sync_with_stdio(0);
     cin.tie(0);cout.tie(0);
     cin >> n >> k;
+    raiz=sqrt(k-1)+1;
     graph.resize(n);
-    pad.resize(n);
-    tin=tout=head=pos=bigchild=depth=pad;
+    depth.resize(n);
+    tin.resize(2*n);
+    dist.assign(n,1e9);
+    sparse.assign(2*n,vector<int>(20));
     for(int i=1;i<n;i++){
         cin >> a >> b;
         graph[--a].push_back(--b);
         graph[b].push_back(a);
     }
-    dfs(0);
-    tiempo=0;
-    descompose(0,0);
-    /*for(int i=0;i<n;i++){
-        cout << tin[i] << ' ';
+    dfs(0,-1);
+    for(int j=1;j<20;j++){
+        for(int i=0;i<2*n;i++){
+            if(i+(1<<(j-1))>=2*n)continue;
+            if(depth[sparse[i][j-1]]<depth[sparse[i+(1<<(j-1))][j-1]])sparse[i][j]=sparse[i][j-1];
+            else sparse[i][j]=sparse[i+(1<<(j-1))][j-1];
+        }
     }
-    cout << endl;
-    for(int i=0;i<n;i++){
-        cout << tout[i] << ' ';
-    }*/
-    segment euler(vector<int>(n,-1e9));
-    segment camino(vector<int>(n,1e9));
-    euler.update(0,0,n-1,tin[0],tout[0],depth[0]);
-    camino.update(0,0,n-1,pos[0],pos[0],depth[0]);
-    // hijos updatean a los padres con camino
-    // tengo que update depth[now]-depth[pad] para cada pad
-    // el padre updatean a los hijos con euler
-    // euler esta bien, pero que pasa si e hijo de algun ancestro tiene menor distancia
-    // min(depth[b]-depth[x]+euler[x]); donde x esta en el camino del b al 0
-    // depth[b]+min(min(depth de algun hijo de[x])=euler[x]-depth[x])
-    while(k--){
+    red.push_back(0);
+    bfs.push(0);
+    dist[0]=0;
+    for(int q=1;q<=k;q++){
         cin >> a >> b;
         b--;
-        if(a==2){
-            int arr=camino.query(0,0,n-1,pos[b],pos[b]).first;//minimo depth del hijo
-            int abb=euler.query(0,0,n-1,tin[b],tin[b]).second;// max depth del pad
-            cout << min(arr-depth[b],depth[b]-abb) << '\n';
+        if(a==1){
+            dist[b]=0;
+            bfs.push(b);
+            red.push_back(b);
             continue;
         }
-        euler.update(0,0,n-1,tin[b],tout[b],depth[b]);
-        // camino del b al 0
-        for(;head[b]!=head[0];b=pad[head[b]]){
-            camino.update(0,0,n-1,pos[head[b]],pos[b],depth[b]);
+        int mini=dist[b];
+        for(auto u:red){
+            // distancia entre u y b
+            int x=tin[u],y=tin[b];
+            if(x>y)swap(x,y);
+            int now=depth[u]+depth[b],lo=31-__builtin_clz(y-x+1);
+            if(depth[sparse[x][lo]]<depth[sparse[y-(1<<lo)+1][lo]])now-=2*depth[sparse[x][lo]];
+            else now-=2*depth[sparse[y-(1<<lo)+1][lo]];
+            mini=min(mini,now);
         }
-        camino.update(0,0,n-1,pos[0],pos[b],depth[b]);
+        cout << mini << '\n';
+        if(q%raiz==0){
+            while(!bfs.empty()){
+                int top=bfs.front();
+                bfs.pop();
+                for(auto u:graph[top]){
+                    if(dist[u]>dist[top]+1){
+                        dist[u]=dist[top]+1;
+                        bfs.push(u);
+                    }
+                }
+            }
+            red.clear();
+        }
     }
 }
