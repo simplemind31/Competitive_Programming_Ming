@@ -8,54 +8,56 @@ int main(){
     //ios_base::sync_with_stdio(0);
     //cin.tie(0);cout.tie(0);
     memset(asegu,-1,sizeof(asegu));
-    freopen("words5.txt","r",stdin);
+    ifstream fin("words5.txt");
     vector<string> tot,rango;
-    while(cin >> st)tot.push_back(st);
-    rango=tot;
+    while(fin >> st)tot.push_back(st);
     //preguntar primero raise
     string prime="raise";
-    /*cout << prime << '\n';
+    cout << prime << '\n';
     cin >> answer;
     // cuantos encajan?
     for(int j=0;j<tot.size();j++){
         string temp=tot[j];
         bool xd=true;
+        string tempres(5,' ');
         for(int k=0;k<5;k++){
-            if(answer[k]=='2'){
-                xd=prime[k]==temp[k];
-
-            }else if(answer[k]=='0'){
-                xd=temp.find(prime[k])==-1;
+            if(temp[k]==prime[k]){
+                tempres[k]='2';
+                temp[k]=' ';
             }
         }
-    }*/
-    while(pregunta++<5){
+        for(int k=0;k<5;k++){
+            if(tempres[k]=='2')continue;
+            if(temp.find(prime[k])!=-1){
+                tempres[k]='1';
+                temp[temp.find(prime[k])]=' ';
+            }else tempres[k]='0';
+        }
+        if(answer==tempres)rango.push_back(tot[j]);
+    }
+    while(rango.size()>1){
         int mini=1e9;
         int pos=0;
-        //3294
         for(int i=0;i<tot.size();i++){
-            if(i%50==0){
-                cout << i << '\n';
-            }
             // que pasa si uso este 
             string now=tot[i];
-            map<vector<int>,int> con;
-            for(int j=0;j<tot.size();j++){
+            map<string,int> con;
+            for(int j=0;j<rango.size();j++){
                 // si la respuesta es j
-                string temp=tot[j];
-                vector<int> tempres(5,-1);
+                string temp=rango[j];
+                string tempres(5,' ');
                 for(int k=0;k<5;k++){
                     if(temp[k]==now[k]){
-                        tempres[k]=2;
+                        tempres[k]='2';
                         temp[k]=' ';
                     }
                 }
                 for(int k=0;k<5;k++){
-                    if(tempres[k]==2)continue;
+                    if(tempres[k]=='2')continue;
                     if(temp.find(now[k])!=-1){
-                        tempres[k]=1;
+                        tempres[k]='1';
                         temp[temp.find(now[k])]=' ';
-                    }else tempres[k]=0;
+                    }else tempres[k]='0';
                 }
                 con[tempres]++;
             }
@@ -63,25 +65,47 @@ int main(){
             for(auto u:con){
                 maxi=max(maxi,u.second);
             }
-            if(maxi<mini){
+            if(maxi<=mini){
                 mini=maxi;
-                cout << i << ' ' << mini << ' ' << tot[i] << '\n';
+                pos=i;
+                //cout << i << ' ' << mini << ' ' << rango[i] << '\n';
             }
         }
-        break;
+        prime=tot[pos];
+        cout << prime << '\n';
+        cin >> answer;
+        vector<string> nue;
+        for(int j=0;j<rango.size();j++){
+            string temp=rango[j];
+            bool xd=true;
+            string tempres(5,' ');
+            for(int k=0;k<5;k++){
+                if(temp[k]==prime[k]){
+                    tempres[k]='2';
+                    temp[k]=' ';
+                }
+            }
+            for(int k=0;k<5;k++){
+                if(tempres[k]=='2')continue;
+                if(temp.find(prime[k])!=-1){
+                    tempres[k]='1';
+                    temp[temp.find(prime[k])]=' ';
+                }else tempres[k]='0';
+            }
+            if(answer==tempres)nue.push_back(rango[j]);
+        }
+        rango=nue;
     }
+    cout << rango[0];
     // si la respuesta es x, pregunto y, cuanto posibles me queda?
 }
-//carse 1190
-//earls 1104
-//lares 1104
-//nares 1089
-//raise 11230 833
-
 /*
-slate 12785->1438
-crane 3249->1711
-salet 11956->1196
-arose 854->1376
-tales 13783->1196
+193 1300 aesir
+837 1235 arles
+2402 1221 canes
+2445 1190 cares
+4322 1104 earls
+9449 1089 nares
+11229 833 raise
+
 */
