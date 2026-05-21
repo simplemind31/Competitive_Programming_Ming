@@ -24,7 +24,38 @@ int main(){
     cin.tie(0);cout.tie(0);
     cin >> n >> m >> q;
     vector<int> lo(q,0),hi(q,m);
-    vector<pair<int,int>> edges(m);
-    for(int i=0;i<m;i++)cin >> edges[i].first >> edges[i].second;
-    
+    vector<pair<int,int>> edges(m),queries(q);
+    for(int i=0;i<m;i++){
+        cin >> edges[i].first >> edges[i].second;
+        edges[i].first--;edges[i].second--;
+    }
+    for(int i=0;i<q;i++){
+        cin >> queries[i].first >> queries[i].second;
+        if(queries[i].first==queries[i].second)lo[i]=hi[i]=-1;
+        queries[i].first--;
+        queries[i].second--;
+    }
+    while(true){
+        bool changed=false;
+        vector<int> bucket[m];
+        for(int i=0;i<q;i++){
+            if(lo[i]<hi[i]){
+                changed=true;
+                bucket[(lo[i]+hi[i])/2].push_back(i);
+            }
+        }
+        if(!changed)break;
+        DSU clav(n);
+        for(int i=0;i<m;i++){
+            clav.unite(edges[i].first,edges[i].second);
+            for(auto u:bucket[i]){
+                if(clav.find(queries[u].first)==clav.find(queries[u].second))hi[u]=i;
+                else lo[u]=i+1;
+            }
+        }
+    }
+    for(int i=0;i<q;i++){
+        if(lo[i]==m)cout << "-1\n";
+        else cout << lo[i]+1 << '\n';
+    }
 }
