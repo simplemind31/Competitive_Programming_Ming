@@ -12,15 +12,33 @@ int main(){
         ll nums[n+2],psum[n+2],ssum[n+2];
         psum[0]=ssum[n+1]=nums[0]=nums[n+1]=0;
         vector<int> res;
-        int bestpos=n;
+        int bestpos=-1;
+        ll suma=0;
         for(int i=1;i<=n;i++){
             cin >> nums[i];
+            if(nums[i]>0)suma+=nums[i];
             psum[i]=psum[i-1]+abs(nums[i]);
         }
-        for(int i=n-1;i>=1;i--){
+        for(int i=n;i>=1;i--){
             ssum[i]=ssum[i+1]+((nums[i]>0)?nums[i]:0);
-            if(ssum[i+1]+psum[i-1]>=ssum[bestpos+1]+psum[bestpos-1])bestpos=i;
+            if(nums[i]>0 && ssum[i+1]+psum[i-1]>=suma){
+                bestpos=i;
+                suma=ssum[i+1]+psum[i-1];
+            }
         }
+        if(bestpos==-1){
+            cout << "0\n\n";
+            continue;
+        }
+        // hacer negativo todo lo que está a la izquierda del bestpos
+        bool xd=false;
+        for(int i=bestpos-1;i>0;i--){
+            if((nums[i]>0)^xd){
+                xd=!xd;
+                res.push_back(i);
+            }
+        }
+        res.push_back(bestpos);
         cout << res.size() << '\n';
         for(auto u:res)cout << u << ' ';
         cout << '\n';
