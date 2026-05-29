@@ -4,26 +4,29 @@ using namespace std;
 typedef long long ll;
 int n,a,b,c;
 struct DSU{
-    vector<int> tam,pad;
+    vector<int> tam,pad;// dist al root
     vector<bool> parity;
-    pair<int,int> find(int x){
-        // (padre, parity)
-        if(x==pad[x])return {x,0};
-        pair<int,int> ne=find(pad[x]);
-        pad[x]=ne.first;
-        parity[x]=!ne.second;
-        return {pad[x],parity[x]};
+    int find(int x){
+        if(x==pad[x])return x;
+        int ne=pad[x];
+        pad[x]=find(pad[x]);
+        parity[x]=parity[x]^parity[ne];
+        return pad[x];
     }
     bool unite(int x,int y){
-        pair<int,int> rex=find(x),rey=find(y);
-        if(tam[rex.first]<tam[rey.first]){
+        int rex=find(x),rey=find(y);
+        if(rex==rey)return false;
+        if(tam[rex]<tam[rey]){
             swap(rex,rey);
             swap(x,y);
         }
+        tam[pad[rey]=rex]+=tam[rey];
+        parity[rey]=parity[x]^1^parity[y];
+        return true;
     }
     void add(){
         tam.push_back(1);
-        pad.push_back(tam.size());
+        pad.push_back(pad.size());
         parity.push_back(0);
     }
     DSU(int x){
@@ -43,14 +46,20 @@ int main(){
         cin >> a >> b >> c;
         if(a+b+c==0)return 0;
         if(a==1){
+            if(clav.find(b)==clav.find(c) && clav.parity[b]!=clav.parity[c])cout << "-1\n";
+            else{
+                clav.add();
+                clav.unite(b,clav.tam.size()-1);
+                clav.unite(c,clav.tam.size()-1);
+            }
             // make same parity
         }else if(a==2){
             // unite
-            clav.unite(b,c)
-        }else if(a==3){
-            // son friends?
+            if(!clav.unite(b,c) && clav.parity[b]==clav.parity[c])cout << "-1\n";
+        }else if(clav.find(b)!=clav.find(c)){
+            cout << "0\n";
         }else{
-            // son enemies?
+            cout << ((a==4)^(clav.parity[b]==clav.parity[c])) << '\n';
         }
     }
 }
