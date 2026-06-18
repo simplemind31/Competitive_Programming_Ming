@@ -1,24 +1,22 @@
 #include <bits/stdc++.h>
 using namespace std;
 int pregunta;
-string st,answer;
-bool imposi[5][26];
-int asegu[5];
+string st,answer,prime="serai";
+vector<string> tot,rango;
 int main(){
     //ios_base::sync_with_stdio(0);
     //cin.tie(0);cout.tie(0);
-    memset(asegu,-1,sizeof(asegu));
-    ifstream fin("words5.txt");
-    vector<string> tot,rango;
-    while(fin >> st)tot.push_back(st);
+    ifstream fin1("words5.txt");
+    ifstream fin2("target.txt");
+    while(fin1 >> st)tot.push_back(st);
+    while(fin2 >> st)rango.push_back(st);
     //preguntar primero raise
-    string prime="raise";
     cout << prime << '\n';
     cin >> answer;
     // cuantos encajan?
-    for(int j=0;j<tot.size();j++){
-        string temp=tot[j];
-        bool xd=true;
+    vector<string> nue;
+    for(int j=0;j<rango.size();j++){
+        string temp=rango[j];
         string tempres(5,' ');
         for(int k=0;k<5;k++){
             if(temp[k]==prime[k]){
@@ -33,15 +31,16 @@ int main(){
                 temp[temp.find(prime[k])]=' ';
             }else tempres[k]='0';
         }
-        if(answer==tempres)rango.push_back(tot[j]);
+        if(answer==tempres)nue.push_back(rango[j]);
     }
+    rango=nue;
+    nue.clear();
     while(rango.size()>1){
         int mini=1e9;
-        int pos=0;
-        for(int i=0;i<tot.size();i++){
+        for(int i=0;i<rango.size();i++){
             // que pasa si uso este 
-            string now=tot[i];
-            map<string,int> con;
+            string now=rango[i];
+            map<int,int> con;
             for(int j=0;j<rango.size();j++){
                 // si la respuesta es j
                 string temp=rango[j];
@@ -59,21 +58,61 @@ int main(){
                         temp[temp.find(now[k])]=' ';
                     }else tempres[k]='0';
                 }
-                con[tempres]++;
+                con[stoi(tempres)]++;
             }
             int maxi=0;
             for(auto u:con){
                 maxi=max(maxi,u.second);
             }
-            if(maxi<=mini){
+            if(maxi<mini){
                 mini=maxi;
-                pos=i;
+                prime=rango[i];
                 //cout << i << ' ' << mini << ' ' << rango[i] << '\n';
             }
         }
-        prime=tot[pos];
+        for(int i=0;i<tot.size();i++){
+            // que pasa si uso este 
+            string now=tot[i];
+            map<int,int> con;
+            for(int j=0;j<rango.size();j++){
+                // si la respuesta es j
+                string temp=rango[j];
+                string tempres(5,' ');
+                for(int k=0;k<5;k++){
+                    if(temp[k]==now[k]){
+                        tempres[k]='2';
+                        temp[k]=' ';
+                    }
+                }
+                for(int k=0;k<5;k++){
+                    if(tempres[k]=='2')continue;
+                    if(temp.find(now[k])!=-1){
+                        tempres[k]='1';
+                        temp[temp.find(now[k])]=' ';
+                    }else tempres[k]='0';
+                }
+                con[stoi(tempres)]++;
+            }
+            int maxi=0;
+            for(auto u:con){
+                maxi=max(maxi,u.second);
+            }
+            if(maxi<mini){
+                mini=maxi;
+                prime=tot[i];
+                //cout << i << ' ' << mini << ' ' << rango[i] << '\n';
+            }
+        }
         cout << prime << '\n';
         cin >> answer;
+        if(answer=="show"){
+            cout << "===========\n";
+            for(auto u:rango){
+                cout << u << '\n';
+            }
+            cout << "===========\n";
+            cin >> answer;
+        }
         vector<string> nue;
         for(int j=0;j<rango.size();j++){
             string temp=rango[j];
@@ -107,5 +146,5 @@ int main(){
 4322 1104 earls
 9449 1089 nares
 11229 833 raise
-
+NOTCH
 */
